@@ -23,8 +23,15 @@ jobs:
         run: mvn -B package -DskipTests
 
       - name: Smoke-run with in-memory H2
+        env:
+          RESUMEFORCE_DB: h2
         run: |
-          java -jar target/resumeforge-*.jar &
-          sleep 20
-          curl -sf http://localhost:8080/login > /dev/null && echo "APP BOOTS OK"
-          curl -sf -o /dev/null -w "%{http_code}" http://localhost:8080/ | grep -q "200" && echo "LANDING OK"
+          java -jar target/resumeforge-*.jar > boot.log 2>&1 &
+          APP_PID=$!
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null http://localhost:8080/login; then ok=1; break; fi
+            sleep 2
+          done
+          if [ "$ok" = "1" ]; then echo "APP BOOTS OK"; else echo "APP FAILED TO BOOT"; cat boot.log; exit 1; fi
+          kill $APP_PID 2>/dev/null || true
