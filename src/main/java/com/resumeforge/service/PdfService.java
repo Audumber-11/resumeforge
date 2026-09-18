@@ -13,16 +13,44 @@ public class PdfService {
     public byte[] generatePdf(Resume resume, String templateHtml) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            new PdfRendererBuilder()
+            PdfRendererBuilder builder = new PdfRendererBuilder()
                     .withHtmlContent(templateHtml, "https://localhost:8080")
-                    .toStream(baos)
-                    .useFont(new java.io.File("C:/Windows/Fonts/arial.ttf"), "Arial")
-                    .useFont(new java.io.File("C:/Windows/Fonts/calibri.ttf"), "Calibri")
-                    .run();
+                    .toStream(baos);
+            registerFont(builder, "Arial", "arial.ttf", "C:/Windows/Fonts");
+            registerFont(builder, "Calibri", "calibri.ttf", "C:/Windows/Fonts");
+            builder.run();
             return baos.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("PDF generation failed: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Registers a TTF font from the first location that exists, so PDF export works
+     * on Windows (C:/Windows/Fonts), Linux servers, and inside Docker containers.
+     */
+    private void registerFont(PdfRendererBuilder builder, String family, String file, String... searchDirs) {
+        for (String dir : searchDirs) {
+            java.io.File f = new java.io.File(dir, file);
+            if (f.exists()) {
+                builder.useFont(f, family);
+                return;
+            }
+        }
+        // Last resort: bundled system-font-ish fallbacks on Linux (Liberation Sans is metric-compatible with Arial)
+        String[] linuxFallbacks = {
+                "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                "/System/Library/Fonts/Supplemental/Arial.ttf"
+        };
+        for (String path : linuxFallbacks) {
+            java.io.File f = new java.io.File(path);
+            if (f.exists()) {
+                builder.useFont(f, family);
+                return;
+            }
+        }
+        // No font file found — openhtmltopdf falls back to its built-in base-14 fonts; PDF still renders.
     }
 
     public String buildResumeHtml(Resume resume, String template) {

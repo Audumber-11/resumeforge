@@ -11,11 +11,11 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
-# Render/Railway inject PORT; Spring Boot must bind it
-ENV SERVER_PORT=${PORT:8080}
+# Render/Railway inject PORT; bind it via a shell entrypoint so ${PORT:-8080} works
 EXPOSE 8080
 
 # Configure via env vars (see .env.example):
 #   DB_URL, DB_USERNAME, DB_PASSWORD  — cloud MySQL (e.g. Aiven free tier)
 #   OPENROUTER_API_KEY                — AI features
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Shell form so ${PORT:-8080} expands at runtime (Render/Railway inject PORT)
+ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT:-8080}"]
