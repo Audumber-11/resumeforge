@@ -35,7 +35,13 @@ class ResumeServiceTest {
     @BeforeEach
     void setup() {
         userRepository.deleteAll();
-        testUser = authService.register("Test User", "testuser", "test@example.com", "password123");
+        com.resumeforge.dto.RegistrationRequest req = new com.resumeforge.dto.RegistrationRequest();
+        req.setFullName("Test User");
+        req.setUsername("testuser");
+        req.setEmail("test@example.com");
+        req.setPassword("Password123");
+        req.setConfirmPassword("Password123");
+        testUser = authService.register(req);
     }
 
     @Test
