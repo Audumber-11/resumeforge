@@ -1,0 +1,52 @@
+# ── Build output ─────────────────────────────
+target/
+build/
+out/
+
+# ── Maven wrapper (regenerated) ──────────────
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/*.lastUpdated
+
+# ── IDE ──────────────────────────────────────
+.idea/
+*.iml
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+
+# ── Logs ─────────────────────────────────────
+*.log
+logs/
+
+# ── Environment / secrets (never commit) ────
+.env
+.env.local
+.env.production
+*.pem
+*.key
+
+# ── Local build helpers (machine-specific) ──
+cp.txt
+checkcp.py
+
+# ── Generated PDFs ───────────────────────────
+generated-pdfs/
+
+# ── OS ───────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Temp files ───────────────────────────────
+*.tmp
+*.swp
+*~
+tools/apache-maven-3.9.9/
+maven.zip
+preview*.html
+*.bat
+start.ps1
+models.json

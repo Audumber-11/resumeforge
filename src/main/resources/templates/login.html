@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ResumeForge</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="auth-page">
+    <!-- Left Panel -->
+    <div class="auth-left">
+        <div>
+            <a href="/" style="color: white; text-decoration: none; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 40px;">
+                <div style="width: 36px; height: 36px; background: #2563eb; border-radius: 8px; display: flex; align-items: center; justify-content: center;">R</div>
+                ResumeForge
+            </a>
+            <h2 style="color: white;">Welcome Back</h2>
+            <p>Log in to continue building your professional resume. Your next career move starts here.</p>
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="auth-right">
+        <div class="auth-form">
+            <h2>Log In</h2>
+            <p>Enter your credentials to access your account.</p>
+
+            <!-- Flash Messages -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <span>&#10003;</span> <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-danger">
+                <span>&#9888;</span> <span th:text="${error}"></span>
+            </div>
+            <div th:if="${param.error}" class="alert alert-danger">
+                <span>&#9888;</span> Invalid username or password.
+            </div>
+            <div th:if="${param.logout}" class="alert alert-info">
+                <span>&#10003;</span> You have been logged out successfully.
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control"
+                           placeholder="Enter your username" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control"
+                           placeholder="Enter your password" required>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; color: var(--gray-500); cursor: pointer;">
+                        <input type="checkbox" name="remember-me" style="accent-color: var(--primary);">
+                        Remember me
+                    </label>
+                    <a href="#" style="font-size: 0.9rem;">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg">Log In</button>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an account? <a th:href="@{/register}">Create one</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

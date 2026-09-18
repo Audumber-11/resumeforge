@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeCraft AI Assistant</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #212121;
+            color: #ececec;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Top Bar ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: #171717;
+            border-bottom: 1px solid #2f2f2f;
+            flex-shrink: 0;
+            min-height: 52px;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 10px; }
+        .topbar-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; color: #ececec; }
+        .topbar-logo {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, #7c3aed, #22d3ee);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 14px; color: #fff;
+        }
+        .topbar-title { font-size: 16px; font-weight: 600; }
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+        .resume-selector {
+            background: #2f2f2f; color: #ececec;
+            border: 1px solid #3f3f3f; border-radius: 8px;
+            padding: 7px 12px; font-size: 13px; font-family: inherit; max-width: 220px;
+        }
+        .resume-selector:focus { outline: none; border-color: #7c3aed; }
+        .topbar-link {
+            color: #a0a0a0; text-decoration: none; font-size: 13px;
+            padding: 6px 10px; border-radius: 6px; transition: all 0.15s;
+        }
+        .topbar-link:hover { background: #2f2f2f; color: #ececec; }
+        .new-chat-btn {
+            background: #7c3aed; color: #fff; border: none; border-radius: 8px;
+            padding: 7px 14px; font-size: 13px; font-family: inherit;
+            cursor: pointer; transition: all 0.15s; font-weight: 500;
+        }
+        .new-chat-btn:hover { background: #6d28d9; }
+
+        /* ── Main Area ── */
+        .main-area { flex: 1; display: flex; overflow: hidden; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 260px; background: #171717;
+            border-right: 1px solid #2f2f2f;
+            display: flex; flex-direction: column;
+            padding: 12px; overflow-y: auto; flex-shrink: 0;
+        }
+        .sidebar-section { margin-bottom: 16px; }
+        .sidebar-label {
+            font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            color: #888; margin-bottom: 8px;
+        }
+        .sidebar-btn {
+            display: flex; align-items: center; gap: 8px;
+            width: 100%; padding: 9px 12px;
+            background: transparent; border: 1px solid #2f2f2f;
+            border-radius: 8px; color: #d4d4d4;
+            font-size: 13px; font-family: inherit;
+            cursor: pointer; transition: all 0.15s;
+            text-align: left; margin-bottom: 4px;
+        }
+        .sidebar-btn:hover { background: #2f2f2f; border-color: #3f3f3f; }
+        .sidebar-btn .ico { font-size: 15px; width: 22px; text-align: center; flex-shrink: 0; }
+
+        /* ── Conversation History ── */
+        .conv-list { max-height: 200px; overflow-y: auto; }
+        .conv-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 10px; border-radius: 8px; cursor: pointer;
+            transition: all 0.15s; margin-bottom: 2px;
+        }
+        .conv-item:hover { background: #2f2f2f; }
+        .conv-item.active { background: #2f2f2f; border: 1px solid #3f3f3f; }
+        .conv-title {
+            font-size: 12px; color: #aaa; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; flex: 1;
+        }
+        .conv-delete {
+            background: none; border: none; color: #666; cursor: pointer;
+            font-size: 14px; padding: 2px 4px; opacity: 0; transition: opacity 0.15s;
+        }
+        .conv-item:hover .conv-delete { opacity: 1; }
+        .conv-delete:hover { color: #f87171; }
+
+        /* ── Quick Actions ── */
+        .sidebar-jd {
+            margin-top: auto; padding-top: 12px;
+            border-top: 1px solid #2f2f2f;
+        }
+        .sidebar-jd label {
+            font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            color: #888; display: block; margin-bottom: 6px;
+        }
+        .sidebar-jd textarea {
+            width: 100%; height: 100px;
+            background: #212121; border: 1px solid #2f2f2f;
+            border-radius: 8px; color: #ececec;
+            font-family: inherit; font-size: 12px;
+            padding: 8px; resize: vertical;
+        }
+        .sidebar-jd textarea:focus { outline: none; border-color: #7c3aed; }
+        .sidebar-jd textarea::placeholder { color: #666; }
+
+        /* ── Chat Area ── */
+        .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #212121; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 16px 0; display: flex; flex-direction: column; }
+
+        /* ── Welcome Screen ── */
+        .welcome { text-align: center; padding: 60px 24px 30px; max-width: 700px; margin: auto; }
+        .welcome h1 {
+            font-size: 26px; font-weight: 700; margin-bottom: 10px;
+            background: linear-gradient(135deg, #7c3aed, #22d3ee);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .welcome p { color: #999; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+        .welcome-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 550px; margin: 0 auto; }
+        .welcome-card {
+            background: #2f2f2f; border: 1px solid #3f3f3f;
+            border-radius: 10px; padding: 14px; text-align: left;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .welcome-card:hover { border-color: #7c3aed; background: #353535; }
+        .welcome-card .wc-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; color: #ececec; }
+        .welcome-card .wc-desc { font-size: 12px; color: #888; }
+
+        /* ── Messages ── */
+        .msg {
+            max-width: 780px; width: 100%; margin: 0 auto;
+            padding: 16px 24px; display: flex; gap: 14px;
+            animation: fadeUp 0.3s ease;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .msg.user { background: transparent; }
+        .msg.assistant { background: #2f2f2f; }
+        .msg-avatar {
+            width: 30px; height: 30px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+        }
+        .msg.user .msg-avatar { background: #7c3aed; color: #fff; }
+        .msg.assistant .msg-avatar { background: linear-gradient(135deg, #7c3aed, #22d3ee); color: #fff; }
+        .msg-body { flex: 1; min-width: 0; }
+        .msg-content {
+            font-size: 14px; line-height: 1.7; color: #d4d4d4;
+            white-space: pre-wrap; word-break: break-word;
+        }
+        .msg-content p { margin-bottom: 8px; }
+        .msg-content p:last-child { margin-bottom: 0; }
+        .msg-content strong { color: #22d3ee; font-weight: 600; }
+        .msg-content code { background: #333; padding: 1px 5px; border-radius: 4px; font-size: 12px; font-family: 'SF Mono', monospace; }
+        .msg-content ul, .msg-content ol { margin: 6px 0; padding-left: 20px; }
+        .msg-content li { margin-bottom: 4px; }
+
+        /* Typing indicator */
+        .typing-dots { display: inline-flex; gap: 4px; padding: 4px 0; }
+        .typing-dots span {
+            width: 7px; height: 7px; background: #7c3aed;
+            border-radius: 50%; animation: dotBounce 1.4s infinite ease-in-out;
+        }
+        .typing-dots span:nth-child(2) { animation-delay: 0.16s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.32s; }
+        @keyframes dotBounce {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ── Input Area ── */
+        .input-area { padding: 12px 24px 16px; background: #212121; }
+        .input-wrap { max-width: 780px; margin: 0 auto; display: flex; gap: 10px; align-items: flex-end; }
+        .input-field {
+            flex: 1; background: #2f2f2f;
+            border: 1px solid #3f3f3f; border-radius: 12px;
+            color: #ececec; font-family: inherit; font-size: 14px;
+            padding: 12px 16px; resize: none; min-height: 46px;
+            max-height: 160px; line-height: 1.5;
+        }
+        .input-field:focus { outline: none; border-color: #7c3aed; }
+        .input-field::placeholder { color: #666; }
+        .send-btn {
+            width: 46px; height: 46px; background: #7c3aed;
+            border: none; border-radius: 12px; color: #fff;
+            font-size: 18px; cursor: pointer; transition: all 0.15s;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .send-btn:hover { background: #6d28d9; }
+        .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .welcome-grid { grid-template-columns: 1fr; }
+            .topbar-right .topbar-link { display: none; }
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <a href="/dashboard" class="topbar-brand">
+                <div class="topbar-logo">R</div>
+                <span class="topbar-title">ResumeCraft AI</span>
+            </a>
+        </div>
+        <div class="topbar-right">
+            <button class="new-chat-btn" onclick="newConversation()">+ New Chat</button>
+            <select class="resume-selector" id="resumeSelect" onchange="onResumeSelect()">
+                <option value="">Select a resume...</option>
+                <option th:each="r : ${resumes}" th:value="${r.id}" th:text="${r.title}"></option>
+            </select>
+            <a href="/dashboard" class="topbar-link">Dashboard</a>
+            <a href="/ai/tools" class="topbar-link">AI Tools</a>
+        </div>
+    </div>
+
+    <div class="main-area">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-label">History</div>
+                <div class="conv-list" id="convList">
+                    <div th:each="conv : ${conversations}" class="conv-item" th:attr="data-id=${conv.id}" onclick="loadConversation(this.getAttribute('data-id'))">
+                        <span class="conv-title" th:text="${conv.title}">Conversation</span>
+                        <button class="conv-delete" onclick="event.stopPropagation(); deleteConversation(this.parentElement.getAttribute('data-id'))" title="Delete">&times;</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Quick Actions</div>
+                <button class="sidebar-btn" onclick="sendQuick('Improve my professional summary based on my resume')">
+                    <span class="ico">&#9997;</span> Improve Summary
+                </button>
+                <button class="sidebar-btn" onclick="sendQuick('Improve my work experience descriptions')">
+                    <span class="ico">&#128188;</span> Improve Experience
+                </button>
+                <button class="sidebar-btn" onclick="sendQuick('Improve my project descriptions')">
+                    <span class="ico">&#128640;</span> Improve Projects
+                </button>
+                <button class="sidebar-btn" onclick="sendQuick('Analyze my skills and suggest what I should add')">
+                    <span class="ico">&#129504;</span> Skill Analysis
+                </button>
+                <button class="sidebar-btn" onclick="sendQuick('Suggest career roles that match my profile')">
+                    <span class="ico">&#127919;</span> Career Roles
+                </button>
+                <button class="sidebar-btn" onclick="sendQuick('Check my resume compatibility with the job description')">
+                    <span class="ico">&#128202;</span> Job Match
+                </button>
+            </div>
+            <div class="sidebar-jd">
+                <label>Job Description (optional)</label>
+                <textarea id="jobDesc" placeholder="Paste a job description here for job-specific analysis..."></textarea>
+            </div>
+        </div>
+
+        <!-- Chat -->
+        <div class="chat-area">
+            <div class="chat-messages" id="chatBox">
+                <div class="welcome" id="welcomeScreen">
+                    <h1>ResumeCraft AI</h1>
+                    <p>Your intelligent resume assistant. I can help you improve your resume content, analyze job descriptions, match your skills, and suggest career paths — all based on your actual resume data.</p>
+                    <div class="welcome-grid">
+                        <div class="welcome-card" onclick="sendQuick('Help me improve my entire resume')">
+                            <div class="wc-title">&#10024; Improve My Resume</div>
+                            <div class="wc-desc">Get AI-powered suggestions for every section</div>
+                        </div>
+                        <div class="welcome-card" onclick="sendQuick('Analyze my skills and suggest improvements')">
+                            <div class="wc-title">&#129504; Analyze Skills</div>
+                            <div class="wc-desc">Find gaps and missing skills for your target role</div>
+                        </div>
+                        <div class="welcome-card" onclick="sendQuick('Suggest career roles based on my experience')">
+                            <div class="wc-title">&#127919; Career Paths</div>
+                            <div class="wc-desc">Discover roles that match your profile</div>
+                        </div>
+                        <div class="welcome-card" onclick="sendQuick('What can you help me with?')">
+                            <div class="wc-title">&#128172; Ask Anything</div>
+                            <div class="wc-desc">Chat about resume tips, job search, and career advice</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="input-area">
+                <div class="input-wrap">
+                    <textarea class="input-field" id="chatInput" rows="1"
+                        placeholder="Message ResumeCraft AI..."
+                        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"
+                        oninput="autoResize(this)"></textarea>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">&#10148;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+// ── State ──
+let conversationId = null;
+const messages = [];
+let isStreaming = false;
+
+const chatBox = document.getElementById('chatBox');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+const welcomeScreen = document.getElementById('welcomeScreen');
+const jobDesc = document.getElementById('jobDesc');
+const resumeSelect = document.getElementById('resumeSelect');
+const convList = document.getElementById('convList');
+
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+function onResumeSelect() {}
+
+// ── Conversation Management ──
+async function newConversation() {
+    conversationId = null;
+    messages.length = 0;
+    chatBox.innerHTML = '';
+    if (welcomeScreen) {
+        welcomeScreen.style.display = '';
+        chatBox.appendChild(welcomeScreen);
+    }
+    // Clear active state
+    document.querySelectorAll('.conv-item').forEach(el => el.classList.remove('active'));
+}
+
+async function loadConversation(id) {
+    conversationId = parseInt(id);
+    messages.length = 0;
+    chatBox.innerHTML = '';
+    if (welcomeScreen) welcomeScreen.style.display = 'none';
+
+    // Highlight active
+    document.querySelectorAll('.conv-item').forEach(el => {
+        el.classList.toggle('active', el.getAttribute('data-id') === id);
+    });
+
+    try {
+        const resp = await fetch('/ai-assistant/conversation/' + id + '/messages');
+        const data = await resp.json();
+        if (data.success && data.messages) {
+            data.messages.forEach(msg => {
+                if (msg.role === 'user') {
+                    addUserMsgUI(msg.content);
+                } else {
+                    addAssistantMsgUI(msg.content);
+                }
+            });
+        }
+    } catch (err) {
+        console.error('Failed to load conversation:', err);
+    }
+}
+
+async function deleteConversation(id) {
+    if (!confirm('Delete this conversation?')) return;
+    try {
+        await fetch('/ai-assistant/conversation/' + id, { method: 'DELETE' });
+        const el = document.querySelector('.conv-item[data-id="' + id + '"]');
+        if (el) el.remove();
+        if (conversationId === parseInt(id)) {
+            newConversation();
+        }
+    } catch (err) {
+        console.error('Failed to delete conversation:', err);
+    }
+}
+
+async function ensureConversation() {
+    if (conversationId) return conversationId;
+    try {
+        const resp = await fetch('/ai-assistant/conversation/create', { method: 'POST' });
+        const data = await resp.json();
+        if (data.success) {
+            conversationId = data.conversationId;
+            // Add to sidebar
+            const div = document.createElement('div');
+            div.className = 'conv-item active';
+            div.setAttribute('data-id', conversationId);
+            div.innerHTML = '<span class="conv-title">New Conversation</span><button class="conv-delete" onclick="event.stopPropagation(); deleteConversation(this.parentElement.getAttribute(\'data-id\'))" title="Delete">&times;</button>';
+            convList.prepend(div);
+            return conversationId;
+        }
+    } catch (err) {
+        console.error('Failed to create conversation:', err);
+    }
+    return null;
+}
+
+// ── Send Message ──
+function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text || isStreaming) return;
+    if (welcomeScreen) welcomeScreen.style.display = 'none';
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    addUserMsgUI(text);
+    messages.push({ role: 'user', content: text });
+    callAI(text);
+}
+
+function sendQuick(text) {
+    if (isStreaming) return;
+    if (welcomeScreen) welcomeScreen.style.display = 'none';
+    addUserMsgUI(text);
+    messages.push({ role: 'user', content: text });
+    callAI(text);
+}
+
+// ── Render Messages ──
+function addUserMsgUI(text) {
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.innerHTML = '<div class="msg-avatar">U</div><div class="msg-body"><div class="msg-content">' + escH(text) + '</div></div>';
+    chatBox.appendChild(div);
+    scrollBottom();
+}
+
+function addAssistantMsgUI(text) {
+    const div = document.createElement('div');
+    div.className = 'msg assistant';
+    div.innerHTML = '<div class="msg-avatar">AI</div><div class="msg-body"><div class="msg-content">' + renderMd(text) + '</div></div>';
+    chatBox.appendChild(div);
+    scrollBottom();
+    return div.querySelector('.msg-content');
+}
+
+function showTyping() {
+    const div = document.createElement('div');
+    div.className = 'msg assistant';
+    div.id = 'typingMsg';
+    div.innerHTML = '<div class="msg-avatar">AI</div><div class="msg-body"><div class="msg-content"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>';
+    chatBox.appendChild(div);
+    scrollBottom();
+    return div;
+}
+
+function removeTyping() {
+    const el = document.getElementById('typingMsg');
+    if (el) el.remove();
+}
+
+function scrollBottom() {
+    requestAnimationFrame(() => { chatBox.scrollTop = chatBox.scrollHeight; });
+}
+
+// ── AI Call with Streaming ──
+async function callAI(message) {
+    isStreaming = true;
+    sendBtn.disabled = true;
+    showTyping();
+
+    const resumeId = resumeSelect.value || '';
+    const jd = jobDesc.value || '';
+    const history = messages.slice(-10).map(m => m.role + ': ' + m.content).join('\n');
+
+    // Ensure we have a conversation
+    const convId = await ensureConversation();
+
+    try {
+        const params = new URLSearchParams({
+            message: message,
+            resumeId: resumeId,
+            jobDescription: jd,
+            action: 'chat',
+            history: history,
+            conversationId: convId || ''
+        });
+
+        const evtSource = new EventSource('/ai-assistant/stream?' + params.toString());
+        let contentEl = null;
+        let fullText = '';
+
+        evtSource.addEventListener('status', (e) => {
+            removeTyping();
+            contentEl = addAssistantMsgUI('');
+            fullText = e.data;
+            contentEl.innerHTML = renderMd(fullText) + ' <span style="opacity:0.5">&#9613;</span>';
+            scrollBottom();
+        });
+
+        evtSource.addEventListener('chunk', (e) => {
+            if (contentEl) {
+                fullText += e.data;
+                contentEl.innerHTML = renderMd(fullText) + ' <span style="opacity:0.5">&#9613;</span>';
+                scrollBottom();
+            }
+        });
+
+        evtSource.addEventListener('done', (e) => {
+            if (contentEl) {
+                contentEl.innerHTML = renderMd(fullText);
+                messages.push({ role: 'assistant', content: fullText });
+            }
+            evtSource.close();
+            finish();
+        });
+
+        evtSource.addEventListener('error', () => {
+            evtSource.close();
+            if (!contentEl) {
+                fallbackChat(message, history, resumeId, jd, convId);
+            } else {
+                if (contentEl) contentEl.innerHTML = renderMd(fullText);
+                messages.push({ role: 'assistant', content: fullText });
+                finish();
+            }
+        });
+
+        setTimeout(() => {
+            if (evtSource.readyState !== EventSource.CLOSED) {
+                evtSource.close();
+                if (contentEl) {
+                    contentEl.innerHTML = renderMd(fullText);
+                    messages.push({ role: 'assistant', content: fullText });
+                }
+                finish();
+            }
+        }, 45000);
+
+    } catch (err) {
+        removeTyping();
+        fallbackChat(message, history, resumeId, jd, convId);
+    }
+}
+
+async function fallbackChat(message, history, resumeId, jd, convId) {
+    try {
+        const resp = await fetch('/ai-assistant/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message,
+                resumeId: resumeId ? parseInt(resumeId) : null,
+                jobDescription: jd,
+                action: 'chat',
+                history,
+                conversationId: convId
+            })
+        });
+        const data = await resp.json();
+        removeTyping();
+        if (data.success) {
+            const text = data.reply || data.result || JSON.stringify(data, null, 2);
+            addAssistantMsgUI(text);
+            messages.push({ role: 'assistant', content: text });
+        } else {
+            addAssistantMsgUI(data.error || 'Something went wrong. Please try again.');
+        }
+    } catch (err) {
+        removeTyping();
+        addAssistantMsgUI('Connection error. Please check your connection and try again.');
+    }
+    finish();
+}
+
+function finish() {
+    isStreaming = false;
+    sendBtn.disabled = false;
+    chatInput.focus();
+}
+
+// ── Markdown Renderer ──
+function renderMd(text) {
+    if (!text) return '';
+    let html = escH(text);
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    html = html.replace(/^[\u2022\-] (.+)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+    html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+    html = html.replace(/\n\n/g, '</p><p>');
+    html = html.replace(/\n/g, '<br>');
+    html = '<p>' + html + '</p>';
+    html = html.replace(/<p><\/p>/g, '');
+    return html;
+}
+
+function escH(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+chatInput.focus();
+</script>
+</body>
+</html>

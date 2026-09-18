@@ -1,0 +1,23 @@
+# ResumeForge on Render (free tier)
+# Deploy: push to GitHub, then https://render.com → New + → Blueprint → pick this repo.
+# Render builds the Dockerfile and injects PORT automatically.
+#
+# Free MySQL: create a database at https://aiven.io (free tier) or use any
+# external MySQL host, then paste its JDBC URL into the env vars below.
+
+services:
+  - type: web
+    name: resumeforge
+    runtime: docker
+    plan: free
+    healthCheckPath: /login
+    envVars:
+      - key: DB_URL
+        sync: false      # set in dashboard: jdbc:mysql://HOST:3306/db?useSSL=true&serverTimezone=UTC
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+    # autoDeploy: true (default) — redeploys on every push to main

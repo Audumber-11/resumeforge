@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tools - ResumeForge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="navbar-brand">
+                <div class="brand-icon">R</div> ResumeForge
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/ai/tools" class="active">AI Tools</a>
+                <a href="/profile">Profile</a>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container" style="max-width: 1000px; margin-top: 40px; padding-bottom: 60px;">
+
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 48px;">
+            <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 8px;">
+                ✨ AI Tools
+            </h1>
+            <p style="color: var(--gray-500); font-size: 1.05rem; max-width: 600px; margin: 0 auto;">
+                Power up your resume with AI-driven analysis, tailoring, and improvement tools.
+            </p>
+            <div style="margin-top: 16px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                <span class="badge" style="background: var(--primary); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem;">
+                    Provider: <span th:text="${aiProvider}">Rule-Based</span>
+                </span>
+                <span class="badge" style="background: var(--gray-100); color: var(--gray-600); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem;">
+                    Analyses: <span th:text="${analysisCount}">0</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- AI Tools Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+
+            <!-- AI Resume Tailor -->
+            <div class="card" style="padding: 32px; border: 2px solid var(--primary-light, #e0e7ff); position: relative; overflow: hidden;">
+                <div style="position: absolute; top: 12px; right: 12px; background: var(--primary); color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">⭐ MAIN</div>
+                <div style="font-size: 2.5rem; margin-bottom: 12px;">🎯</div>
+                <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">AI Resume Tailor</h3>
+                <p style="color: var(--gray-500); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">
+                    Upload your resume and paste a job description. AI will analyze the match and create a tailored version.
+                </p>
+                <ul style="color: var(--gray-600); font-size: 0.85rem; margin-bottom: 20px; padding-left: 20px;">
+                    <li>Resume vs Job matching</li>
+                    <li>Skills gap analysis</li>
+                    <li>Keyword optimization</li>
+                    <li>Professional summary generation</li>
+                </ul>
+                <a href="/ai/tailor" class="btn btn-primary" style="width: 100%; text-align: center;">Open Tailor →</a>
+            </div>
+
+            <!-- Job Match Analyzer -->
+            <div class="card" style="padding: 32px;">
+                <div style="font-size: 2.5rem; margin-bottom: 12px;">📊</div>
+                <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">Job Match Analyzer</h3>
+                <p style="color: var(--gray-500); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">
+                    Compare your resume against any job description. Get a compatibility score and detailed analysis.
+                </p>
+                <ul style="color: var(--gray-600); font-size: 0.85rem; margin-bottom: 20px; padding-left: 20px;">
+                    <li>Overall match score</li>
+                    <li>Skills & keyword matching</li>
+                    <li>Missing skill identification</li>
+                    <li>Improvement suggestions</li>
+                </ul>
+                <a href="/ai/tailor#step-match" class="btn btn-outline" style="width: 100%; text-align: center;">Analyze Match →</a>
+            </div>
+
+            <!-- AI Summary Generator -->
+            <div class="card" style="padding: 32px;">
+                <div style="font-size: 2.5rem; margin-bottom: 12px;">📝</div>
+                <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">AI Summary Generator</h3>
+                <p style="color: var(--gray-500); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">
+                    Generate a compelling professional summary tailored to your target job.
+                </p>
+                <ul style="color: var(--gray-600); font-size: 0.85rem; margin-bottom: 20px; padding-left: 20px;">
+                    <li>Job-tailored summary</li>
+                    <li>Multiple versions</li>
+                    <li>Edit and customize</li>
+                </ul>
+                <a href="/ai/tailor#step-summary" class="btn btn-outline" style="width: 100%; text-align: center;">Generate Summary →</a>
+            </div>
+
+            <!-- Career Assistant -->
+            <div class="card" style="padding: 32px;">
+                <div style="font-size: 2.5rem; margin-bottom: 12px;">💼</div>
+                <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">Career Assistant</h3>
+                <p style="color: var(--gray-500); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">
+                    Get career role recommendations based on your skills and experience.
+                </p>
+                <ul style="color: var(--gray-600); font-size: 0.85rem; margin-bottom: 20px; padding-left: 20px;">
+                    <li>Role compatibility scores</li>
+                    <li>Skill-based recommendations</li>
+                    <li>Growth suggestions</li>
+                </ul>
+                <a href="/ai/tailor#step-career" class="btn btn-outline" style="width: 100%; text-align: center;">View Recommendations →</a>
+            </div>
+
+        </div>
+
+        <!-- Provider Status -->
+        <div class="card" style="margin-top: 40px; padding: 24px; text-align: center; background: var(--gray-50, #f9fafb);">
+            <p style="color: var(--gray-500); font-size: 0.85rem; margin: 0;">
+                AI Provider: <strong th:text="${aiProvider}">Rule-Based</strong> •
+                All AI features work with the rule-based fallback. No API key required for basic analysis.
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="text-align: center; padding: 24px; color: var(--gray-400); font-size: 0.85rem; border-top: 1px solid var(--gray-200);">
+        © 2026 ResumeForge. Built with Java Spring Boot.
+    </footer>
+</body>
+</html>

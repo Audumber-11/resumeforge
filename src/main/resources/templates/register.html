@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - ResumeForge</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="auth-page">
+    <!-- Left Panel -->
+    <div class="auth-left">
+        <div>
+            <a href="/" style="color: white; text-decoration: none; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 40px;">
+                <div style="width: 36px; height: 36px; background: #2563eb; border-radius: 8px; display: flex; align-items: center; justify-content: center;">R</div>
+                ResumeForge
+            </a>
+            <h2 style="color: white;">Start Building Your Resume</h2>
+            <p>Create a free account and build a professional resume that stands out. Choose templates, customize everything, and export as PDF.</p>
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="auth-right">
+        <div class="auth-form">
+            <h2>Create Account</h2>
+            <p>Fill in your details to get started.</p>
+
+            <!-- Flash Messages -->
+            <div th:if="${error}" class="alert alert-danger">
+                <span>&#9888;</span> <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="@{/register}" th:object="${registrationRequest}" method="post">
+                <div class="form-group">
+                    <label for="fullName">Full Name <span class="required">*</span></label>
+                    <input type="text" id="fullName" name="fullName" class="form-control"
+                           placeholder="e.g. Alex Sharma" required th:field="*{fullName}">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="username">Username <span class="required">*</span></label>
+                        <input type="text" id="username" name="username" class="form-control"
+                               placeholder="e.g. alexsharma" required th:field="*{username}">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" class="form-control"
+                               placeholder="e.g. alex@example.com" required th:field="*{email}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Password <span class="required">*</span></label>
+                        <input type="password" id="password" name="password" class="form-control"
+                               placeholder="Min 6 characters" required minlength="6" th:field="*{password}">
+                        <div id="passwordStrength" style="margin-top: 6px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control"
+                               placeholder="Re-enter password" required th:field="*{confirmPassword}">
+                        <div id="passwordMatch" style="margin-top: 6px; font-size: 0.8rem;"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg" id="registerBtn">Create Account</button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a th:href="@{/login}">Log in</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const strengthDiv = document.getElementById('passwordStrength');
+    const matchDiv = document.getElementById('passwordMatch');
+
+    password.addEventListener('input', function() {
+        const val = this.value;
+        let strength = 0;
+        if (val.length >= 6) strength++;
+        if (val.length >= 8) strength++;
+        if (/[A-Z]/.test(val)) strength++;
+        if (/[0-9]/.test(val)) strength++;
+        if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+        const labels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+        const colors = ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#059669', '#047857'];
+
+        if (val.length > 0) {
+            strengthDiv.innerHTML = '<div style="display:flex;gap:3px;margin-bottom:4px;">' +
+                Array(5).fill(0).map((_, i) => `<div style="height:4px;flex:1;border-radius:2px;background:${i < strength ? colors[strength] : '#e5e7eb'};"></div>`).join('') +
+                '</div><span style="font-size:0.8rem;color:' + colors[strength] + ';">' + labels[strength] + '</span>';
+        } else {
+            strengthDiv.innerHTML = '';
+        }
+    });
+
+    confirmPassword.addEventListener('input', function() {
+        if (this.value.length > 0) {
+            if (this.value === password.value) {
+                matchDiv.innerHTML = '<span style="color:#10b981;">&#10003; Passwords match</span>';
+                this.classList.remove('error');
+                this.classList.add('success');
+            } else {
+                matchDiv.innerHTML = '<span style="color:#ef4444;">&#10007; Passwords do not match</span>';
+                this.classList.remove('success');
+                this.classList.add('error');
+            }
+        } else {
+            matchDiv.innerHTML = '';
+            this.classList.remove('error', 'success');
+        }
+    });
+});
+</script>
+
+</body>
+</html>

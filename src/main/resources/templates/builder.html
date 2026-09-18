@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Builder - ' + ${resume.title}">Resume Builder</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="container">
+        <a th:href="@{/dashboard}" class="navbar-brand">
+            <div class="brand-icon">R</div>
+            ResumeForge
+        </a>
+        <div class="navbar-nav">
+            <a th:href="@{/dashboard}">Dashboard</a>
+            <span style="font-weight: 600; color: var(--gray-700);" th:text="${resume.title}">Resume</span>
+            <button class="btn btn-primary btn-sm" onclick="saveAll()">Save</button>
+            <a th:href="@{/resume/{id}/pdf(id=${resume.id})}" class="btn btn-secondary btn-sm">Download PDF</a>
+            <button class="btn btn-secondary btn-sm" onclick="window.print()">Print</button>
+        </div>
+    </div>
+</nav>
+
+<div class="builder">
+    <!-- Sidebar -->
+    <div class="builder-sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Resume Sections</div>
+            <ul class="sidebar-nav">
+                <li><a href="#" class="active" onclick="showSection('personal', this)"><span class="icon">&#128100;</span> Personal</a></li>
+                <li><a href="#" onclick="showSection('summary', this)"><span class="icon">&#128221;</span> Summary</a></li>
+                <li><a href="#" onclick="showSection('education', this)"><span class="icon">&#127891;</span> Education</a></li>
+                <li><a href="#" onclick="showSection('experience', this)"><span class="icon">&#128188;</span> Experience</a></li>
+                <li><a href="#" onclick="showSection('skills', this)"><span class="icon">&#128736;</span> Skills</a></li>
+                <li><a href="#" onclick="showSection('projects', this)"><span class="icon">&#128187;</span> Projects</a></li>
+                <li><a href="#" onclick="showSection('certifications', this)"><span class="icon">&#127942;</span> Certifications</a></li>
+                <li><a href="#" onclick="showSection('achievements', this)"><span class="icon">&#127941;</span> Achievements</a></li>
+                <li><a href="#" onclick="showSection('languages', this)"><span class="icon">&#127760;</span> Languages</a></li>
+                <li><a href="#" onclick="showSection('sociallinks', this)"><span class="icon">&#128279;</span> Social Links</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" style="margin-top: 16px; border-top: 1px solid var(--gray-200); padding-top: 16px;">
+            <div class="sidebar-section-title">Resume Tools</div>
+            <ul class="sidebar-nav">
+                <li><a href="#" onclick="showSection('customize', this)"><span class="icon">&#127912;</span> Customize</a></li>
+                <li><a href="#" onclick="showSection('templates', this)"><span class="icon">&#128444;</span> Templates</a></li>
+                <li><a href="#" onclick="showSection('score', this)"><span class="icon">&#128200;</span> Score</a></li>
+                <li><a href="#" onclick="showSection('ats', this)"><span class="icon">&#9989;</span> ATS Check</a></li>
+                <li><a href="#" onclick="showSection('chatbot', this)"><span class="icon">&#128172;</span> AI Chat</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Editor -->
+    <div class="builder-main">
+        <div class="builder-editor">
+
+            <!-- Personal Information -->
+            <div id="section-personal" class="section-form active">
+                <h3 style="margin-bottom: 16px;">Personal Information</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" class="form-control" id="firstName" th:value="${resume.firstName}" oninput="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" class="form-control" id="lastName" th:value="${resume.lastName}" oninput="updatePreview()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Professional Title</label>
+                    <input type="text" class="form-control" id="professionalTitle" th:value="${resume.professionalTitle}" placeholder="e.g. Software Developer" oninput="updatePreview()">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" id="personalEmail" th:value="${resume.personalEmail}" oninput="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" class="form-control" id="phone" th:value="${resume.phone}" oninput="updatePreview()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" class="form-control" id="location" th:value="${resume.location}" placeholder="e.g. Mumbai, India" oninput="updatePreview()">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Website</label>
+                        <input type="url" class="form-control" id="website" th:value="${resume.website}" placeholder="https://" oninput="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>LinkedIn</label>
+                        <input type="url" class="form-control" id="linkedin" th:value="${resume.linkedin}" placeholder="https://linkedin.com/in/..." oninput="updatePreview()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>GitHub</label>
+                    <input type="url" class="form-control" id="github" th:value="${resume.github}" placeholder="https://github.com/..." oninput="updatePreview()">
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div id="section-summary" class="section-form">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                    <h3 style="margin:0;">Professional Summary</h3>
+                    <button class="btn btn-sm" onclick="aiImproveSection('summary')" style="background:#6366f1;color:#fff;border-radius:6px;font-size:11px;padding:4px 10px;">✨ Improve with AI</button>
+                </div>
+                <div class="form-group">
+                    <label>Summary</label>
+                    <textarea class="form-control" id="summary" rows="6" th:value="${resume.summary}" placeholder="Write 2-4 sentences about your professional background, skills, and career goals..." oninput="updatePreview(); updateCharCount();"></textarea>
+                    <div class="form-text"><span id="charCount">0</span> characters (recommended: 100-400)</div>
+                </div>
+            </div>
+
+            <!-- Education -->
+            <div id="section-education" class="section-form">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <h3>Education</h3>
+                    <button class="btn btn-primary btn-sm" onclick="addEducation()">+ Add Education</button>
+                </div>
+                <div id="education-list">
+                    <div th:each="edu, iter : ${educationList}" class="card mb-2" th:id="'edu-' + ${edu.id}">
+                        <div class="flex-between mb-1">
+                            <strong th:text="${edu.institution} ?: 'New Education'">Education</strong>
+                            <button class="btn btn-danger btn-sm" onclick="deleteEducation(${edu.id})">Delete</button>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Institution</label><input type="text" class="form-control" th:value="${edu.institution}" th:attr="data-id=${edu.id},data-field='institution'" oninput="updateEducationField(this)"></div>
+                            <div class="form-group"><label>Degree</label><input type="text" class="form-control" th:value="${edu.degree}" th:attr="data-id=${edu.id},data-field='degree'" oninput="updateEducationField(this)"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Field of Study</label><input type="text" class="form-control" th:value="${edu.field}" th:attr="data-id=${edu.id},data-field='field'" oninput="updateEducationField(this)"></div>
+                            <div class="form-group"><label>Grade/CGPA</label><input type="text" class="form-control" th:value="${edu.grade}" th:attr="data-id=${edu.id},data-field='grade'" oninput="updateEducationField(this)"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Start Date</label><input type="text" class="form-control" th:value="${edu.startDate}" placeholder="e.g. Aug 2022" th:attr="data-id=${edu.id},data-field='startDate'" oninput="updateEducationField(this)"></div>
+                            <div class="form-group"><label>End Date</label><input type="text" class="form-control" th:value="${edu.endDate}" placeholder="e.g. May 2026 or Present" th:attr="data-id=${edu.id},data-field='endDate'" oninput="updateEducationField(this)"></div>
+                        </div>
+                        <div class="form-group"><label>Description</label><textarea class="form-control" rows="2" th:attr="data-id=${edu.id},data-field='description'" oninput="updateEducationField(this)" th:text="${edu.description}"></textarea></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experience -->
+            <div id="section-experience" class="section-form">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <h3 style="margin:0;">Experience</h3>
+                        <button class="btn btn-sm" onclick="aiImproveSection('experience')" style="background:#6366f1;color:#fff;border-radius:6px;font-size:11px;padding:4px 10px;">✨ Improve with AI</button>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="addExperience()">+ Add Experience</button>
+                </div>
+                <div id="experience-list">
+                    <div th:each="exp : ${experienceList}" class="card mb-2" th:id="'exp-' + ${exp.id}">
+                        <div class="flex-between mb-1">
+                            <strong th:text="${exp.jobTitle} ?: 'New Experience'">Experience</strong>
+                            <button class="btn btn-danger btn-sm" onclick="deleteExperience(${exp.id})">Delete</button>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Job Title</label><input type="text" class="form-control" th:value="${exp.jobTitle}" th:attr="data-id=${exp.id},data-field='jobTitle'" oninput="updateExpField(this)"></div>
+                            <div class="form-group"><label>Company</label><input type="text" class="form-control" th:value="${exp.company}" th:attr="data-id=${exp.id},data-field='company'" oninput="updateExpField(this)"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Location</label><input type="text" class="form-control" th:value="${exp.location}" th:attr="data-id=${exp.id},data-field='location'" oninput="updateExpField(this)"></div>
+                            <div class="form-group"><label>Employment Type</label><select class="form-control" th:attr="data-id=${exp.id},data-field='employmentType'" onchange="updateExpField(this)"><option value="" th:selected="${exp.employmentType == ''}">Select</option><option value="Full-time" th:selected="${exp.employmentType == 'Full-time'}">Full-time</option><option value="Part-time" th:selected="${exp.employmentType == 'Part-time'}">Part-time</option><option value="Internship" th:selected="${exp.employmentType == 'Internship'}">Internship</option><option value="Contract" th:selected="${exp.employmentType == 'Contract'}">Contract</option><option value="Freelance" th:selected="${exp.employmentType == 'Freelance'}">Freelance</option></select></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Currently Working</label><select class="form-control" th:attr="data-id=${exp.id},data-field='currentlyWorking'" onchange="updateExpField(this)"><option value="false" th:selected="${!exp.currentlyWorking}">No</option><option value="true" th:selected="${exp.currentlyWorking}">Yes</option></select></div>
+                            <div class="form-group"><label>Start Date</label><input type="text" class="form-control" th:value="${exp.startDate}" placeholder="e.g. Jan 2024" th:attr="data-id=${exp.id},data-field='startDate'" oninput="updateExpField(this)"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>End Date</label><input type="text" class="form-control" th:value="${exp.endDate}" placeholder="e.g. Present" th:attr="data-id=${exp.id},data-field='endDate'" oninput="updateExpField(this)"></div>
+                            <div class="form-group"></div>
+                        </div>
+                        <div class="form-group"><label>Description</label><textarea class="form-control" rows="3" th:attr="data-id=${exp.id},data-field='description'" oninput="updateExpField(this)" th:text="${exp.description}"></textarea></div>
+                        <div class="form-group"><label>Key Achievements</label><textarea class="form-control" rows="2" th:attr="data-id=${exp.id},data-field='achievements'" oninput="updateExpField(this)" th:text="${exp.achievements}" placeholder="e.g. Increased performance by 40%"></textarea></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills -->
+            <div id="section-skills" class="section-form">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <h3>Skills</h3>
+                    <button class="btn btn-primary btn-sm" onclick="addSkill()">+ Add Skill</button>
+                </div>
+                <div id="skills-list">
+                    <div th:each="skill : ${skills}" class="card mb-2 flex-between" th:id="'skill-' + ${skill.id}">
+                        <div style="flex:1;">
+                            <div class="form-row">
+                                <div class="form-group"><label>Skill Name</label><input type="text" class="form-control" th:value="${skill.name}" th:attr="data-id=${skill.id},data-field='name'" oninput="updateSkillField(this)"></div>
+                                <div class="form-group"><label>Category</label><input type="text" class="form-control" th:value="${skill.category}" placeholder="e.g. Programming" th:attr="data-id=${skill.id},data-field='category'" oninput="updateSkillField(this)"></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" style="margin-left:8px;" onclick="deleteSkill(${skill.id})">Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects -->
+            <div id="section-projects" class="section-form">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <h3 style="margin:0;">Projects</h3>
+                        <button class="btn btn-sm" onclick="aiImproveSection('projects')" style="background:#6366f1;color:#fff;border-radius:6px;font-size:11px;padding:4px 10px;">✨ Improve with AI</button>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="addProject()">+ Add Project</button>
+                </div>
+                <div id="projects-list">
+                    <div th:each="proj : ${projects}" class="card mb-2" th:id="'proj-' + ${proj.id}">
+                        <div class="flex-between mb-1">
+                            <strong th:text="${proj.name} ?: 'New Project'">Project</strong>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProject(${proj.id})">Delete</button>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Project Name</label><input type="text" class="form-control" th:value="${proj.name}" th:attr="data-id=${proj.id},data-field='name'" oninput="updateProjectField(this)"></div>
+                            <div class="form-group"><label>Role</label><input type="text" class="form-control" th:value="${proj.role}" placeholder="e.g. Lead Developer" th:attr="data-id=${proj.id},data-field='role'" oninput="updateProjectField(this)"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Technologies</label><input type="text" class="form-control" th:value="${proj.technologies}" placeholder="e.g. Java, Spring Boot, MySQL" th:attr="data-id=${proj.id},data-field='technologies'" oninput="updateProjectField(this)"></div>
+                            <div class="form-group"><label>Duration</label><input type="text" class="form-control" th:value="${proj.startDate}" placeholder="e.g. Jan 2024 - Jun 2024" th:attr="data-id=${proj.id},data-field='startDate'" oninput="updateProjectField(this)"></div>
+                        </div>
+                        <div class="form-group"><label>Description</label><textarea class="form-control" rows="2" th:attr="data-id=${proj.id},data-field='description'" oninput="updateProjectField(this)" th:text="${proj.description}"></textarea></div>
+                        <div class="form-group"><label>Key Contributions</label><textarea class="form-control" rows="2" th:attr="data-id=${proj.id},data-field='keyContributions'" oninput="updateProjectField(this)" th:text="${proj.keyContributions}" placeholder="Key technical decisions, optimizations, features delivered"></textarea></div>
+                        <div class="form-row">
+                            <div class="form-group"><label>GitHub URL</label><input type="url" class="form-control" th:value="${proj.githubUrl}" th:attr="data-id=${proj.id},data-field='githubUrl'" oninput="updateProjectField(this)"></div>
+                            <div class="form-group"><label>Live Demo URL</label><input type="url" class="form-control" th:value="${proj.liveDemoUrl}" th:attr="data-id=${proj.id},data-field='liveDemoUrl'" oninput="updateProjectField(this)"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Certifications -->
+            <div id="section-certifications" class="section-form">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <h3>Certifications</h3>
+                    <button class="btn btn-primary btn-sm" onclick="addCertification()">+ Add Certification</button>
+                </div>
+                <div id="certifications-list">
+                    <div th:each="cert : ${certifications}" class="card mb-2 flex-between" th:id="'cert-' + ${cert.id}">
+                        <div style="flex:1;">
+                            <div class="form-row">
+                                <div class="form-group"><label>Certification Name</label><input type="text" class="form-control" th:value="${cert.name}" th:attr="data-id=${cert.id},data-field='name'" oninput="updateCertField(this)"></div>
+                                <div class="form-group"><label>Issuing Organization</label><input type="text" class="form-control" th:value="${cert.issuingOrganization}" th:attr="data-id=${cert.id},data-field='issuingOrganization'" oninput="updateCertField(this)"></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Date</label><input type="text" class="form-control" th:value="${cert.date}" th:attr="data-id=${cert.id},data-field='date'" oninput="updateCertField(this)"></div>
+                                <div class="form-group"><label>Credential ID</label><input type="text" class="form-control" th:value="${cert.credentialId}" th:attr="data-id=${cert.id},data-field='credentialId'" oninput="updateCertField(this)" placeholder="Optional"></div>
+                            </div>
+                            <div class="form-group"><label>Credential URL</label><input type="url" class="form-control" th:value="${cert.credentialUrl}" th:attr="data-id=${cert.id},data-field='credentialUrl'" oninput="updateCertField(this)" placeholder="https://"></div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" style="margin-left:8px;" onclick="deleteCertification(${cert.id})">Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div id="section-achievements" class="section-form">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <h3>Achievements</h3>
+                    <button class="btn btn-primary btn-sm" onclick="addAchievement()">+ Add Achievement</button>
+                </div>
+                <div id="achievements-list">
+                    <div th:each="ach : ${achievements}" class="card mb-2 flex-between" th:id="'ach-' + ${ach.id}">
+                        <div style="flex:1;">
+                            <div class="form-group"><label>Title</label><input type="text" class="form-control" th:value="${ach.title}" th:attr="data-id=${ach.id},data-field='title'" oninput="updateAchField(this)"></div>
+                            <div class="form-group"><label>Description</label><textarea class="form-control" rows="2" th:attr="data-id=${ach.id},data-field='description'" oninput="updateAchField(this)" th:text="${ach.description}"></textarea></div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" style="margin-left:8px;" onclick="deleteAchievement(${ach.id})">Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Languages -->
+            <div id="section-languages" class="section-form">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <h3>Languages</h3>
+                    <button class="btn btn-primary btn-sm" onclick="addLanguage()">+ Add Language</button>
+                </div>
+                <div id="languages-list">
+                    <div th:each="lang : ${languages}" class="card mb-2 flex-between" th:id="'lang-' + ${lang.id}">
+                        <div style="flex:1;">
+                            <div class="form-row">
+                                <div class="form-group"><label>Language</label><input type="text" class="form-control" th:value="${lang.name}" th:attr="data-id=${lang.id},data-field='name'" oninput="updateLangField(this)"></div>
+                                <div class="form-group"><label>Proficiency</label><select class="form-control" th:attr="data-id=${lang.id},data-field='proficiency'" onchange="updateLangField(this)"><option value="Native" th:selected="${lang.proficiency == 'Native'}">Native</option><option value="Fluent" th:selected="${lang.proficiency == 'Fluent'}">Fluent</option><option value="Advanced" th:selected="${lang.proficiency == 'Advanced'}">Advanced</option><option value="Conversational" th:selected="${lang.proficiency == 'Conversational'}">Conversational</option><option value="Basic" th:selected="${lang.proficiency == 'Basic'}">Basic</option></select></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" style="margin-left:8px;" onclick="deleteLanguage(${lang.id})">Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-sociallinks" class="section-form">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <h3>Social Links</h3>
+                    <button class="btn btn-primary btn-sm" onclick="addSocialLink()">+ Add Link</button>
+                </div>
+                <div id="sociallinks-list">
+                    <div th:each="link : ${socialLinks}" class="card mb-2 flex-between" th:id="'sl-' + ${link.id}">
+                        <div style="flex:1;">
+                            <div class="form-row">
+                                <div class="form-group"><label>Platform</label><select class="form-control" th:attr="data-id=${link.id},data-field='platform'" onchange="updateSocialLinkField(this)"><option value="GitHub" th:selected="${link.platform == 'GitHub'}">GitHub</option><option value="LinkedIn" th:selected="${link.platform == 'LinkedIn'}">LinkedIn</option><option value="Portfolio" th:selected="${link.platform == 'Portfolio'}">Portfolio</option><option value="Twitter" th:selected="${link.platform == 'Twitter'}">Twitter</option><option value="Other" th:selected="${link.platform == 'Other'}">Other</option></select></div>
+                                <div class="form-group"><label>URL</label><input type="url" class="form-control" th:value="${link.url}" th:attr="data-id=${link.id},data-field='url'" oninput="updateSocialLinkField(this)" placeholder="https://"></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" style="margin-left:8px;" onclick="deleteSocialLink(${link.id})">Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customize -->
+            <div id="section-customize" class="section-form">
+                <h3 style="margin-bottom: 16px;">Customize Resume</h3>
+                <div class="form-group">
+                    <label>Primary Color</label>
+                    <div class="color-options">
+                        <div class="color-option" style="background:#2563eb;" onclick="setColor('#2563eb', this)"></div>
+                        <div class="color-option" style="background:#10b981;" onclick="setColor('#10b981', this)"></div>
+                        <div class="color-option" style="background:#f59e0b;" onclick="setColor('#f59e0b', this)"></div>
+                        <div class="color-option" style="background:#ef4444;" onclick="setColor('#ef4444', this)"></div>
+                        <div class="color-option" style="background:#8b5cf6;" onclick="setColor('#8b5cf6', this)"></div>
+                        <div class="color-option" style="background:#ec4899;" onclick="setColor('#ec4899', this)"></div>
+                        <div class="color-option" style="background:#1f2937;" onclick="setColor('#1f2937', this)"></div>
+                        <div class="color-option" style="background:#0891b2;" onclick="setColor('#0891b2', this)"></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Font Family</label>
+                        <select class="form-control" id="fontFamily" onchange="setFont(this.value)">
+                            <option value="Inter">Inter</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Calibri">Calibri</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                        </select>
+                    </div>
+                    <div class="form-group"></div>
+                </div>
+                <div class="form-group">
+                    <label>Section Order (drag or reorder below)</label>
+                    <div id="section-order" style="display:flex; flex-direction:column; gap:4px; margin-top:8px;">
+                        <div class="card" style="padding:8px 12px; cursor:grab; font-size:0.9rem;" data-section="summary">&#9776; Summary</div>
+                        <div class="card" style="padding:8px 12px; cursor:grab; font-size:0.9rem;" data-section="education">&#9776; Education</div>
+                        <div class="card" style="padding:8px 12px; cursor:grab; font-size:0.9rem;" data-section="experience">&#9776; Experience</div>
+                        <div class="card" style="padding:8px 12px; cursor:grab; font-size:0.9rem;" data-section="skills">&#9776; Skills</div>
+                        <div class="card" style="padding:8px 12px; cursor:grab; font-size:0.9rem;" data-section="projects">&#9776; Projects</div>
+                        <div class="card" style="padding:8px 12px; cursor:grab; font-size:0.9rem;" data-section="certifications">&#9776; Certifications</div>
+                        <div class="card" style="padding:8px 12px; cursor:grab; font-size:0.9rem;" data-section="achievements">&#9776; Achievements</div>
+                        <div class="card" style="padding:8px 12px; cursor:grab; font-size:0.9rem;" data-section="languages">&#9776; Languages</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Templates -->
+            <div id="section-templates" class="section-form">
+                <h3 style="margin-bottom: 12px;">Choose Template</h3>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <input type="text" class="form-control" id="templateSearch" placeholder="Search templates..." oninput="filterTemplates()" style="font-size:0.9rem;">
+                </div>
+                <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+                    <button class="btn btn-sm template-filter active" onclick="filterByCategory('all', this)">All</button>
+                    <button class="btn btn-sm template-filter" onclick="filterByCategory('Professional', this)">Professional</button>
+                    <button class="btn btn-sm template-filter" onclick="filterByCategory('Corporate', this)">Corporate</button>
+                    <button class="btn btn-sm template-filter" onclick="filterByCategory('Modern', this)">Modern</button>
+                    <button class="btn btn-sm template-filter" onclick="filterByCategory('Creative', this)">Creative</button>
+                    <button class="btn btn-sm template-filter" onclick="filterByCategory('ATS', this)">ATS Friendly</button>
+                </div>
+                <div class="template-grid" id="templateGrid">
+                    <div class="template-card active" data-id="professional" data-cat="Professional" onclick="setTemplate('professional', this)">
+                        <div class="template-preview" style="background:#f0f4ff;"><div style="text-align:left;padding:12px;width:100%;"><div style="height:6px;background:#2563eb;border-radius:3px;width:50%;margin-bottom:8px;"></div><div style="height:3px;background:#ddd;border-radius:2px;margin-bottom:4px;"></div><div style="height:3px;background:#ddd;border-radius:2px;width:70%;"></div></div></div>
+                        <h5>Professional</h5><span class="tpl-badge">Basic</span>
+                    </div>
+                    <div class="template-card" data-id="executive" data-cat="Professional ATS" onclick="setTemplate('executive', this)">
+                        <div class="template-preview" style="background:#f8fafc;border-left:3px solid #1e293b;"><div style="text-align:left;padding:12px;width:100%;"><div style="height:6px;background:#1e293b;border-radius:3px;width:50%;margin-bottom:8px;"></div><div style="height:3px;background:#ddd;border-radius:2px;margin-bottom:4px;"></div><div style="height:3px;background:#ddd;border-radius:2px;width:80%;"></div></div></div>
+                        <h5>Executive</h5><span class="tpl-badge ats">ATS</span>
+                    </div>
+                    <div class="template-card" data-id="corporate" data-cat="Corporate" onclick="setTemplate('corporate', this)">
+                        <div class="template-preview" style="background:#2563eb;"><div style="text-align:left;padding:12px;width:100%;"><div style="height:6px;background:rgba(255,255,255,0.8);border-radius:3px;width:50%;margin-bottom:8px;"></div><div style="height:3px;background:rgba(255,255,255,0.4);border-radius:2px;margin-bottom:4px;"></div><div style="height:3px;background:rgba(255,255,255,0.4);border-radius:2px;width:70%;"></div></div></div>
+                        <h5>Corporate Pro</h5><span class="tpl-badge">2-Column</span>
+                    </div>
+                    <div class="template-card" data-id="clearline" data-cat="Professional ATS" onclick="setTemplate('clearline', this)">
+                        <div class="template-preview" style="background:#f0fdfa;"><div style="text-align:left;padding:12px;width:100%;"><div style="height:6px;background:#0891b2;border-radius:3px;width:50%;margin-bottom:8px;"></div><div style="height:3px;background:#ddd;border-radius:2px;margin-bottom:4px;"></div><div style="height:3px;background:#0891b2;border-radius:2px;width:60%;height:2px;"></div></div></div>
+                        <h5>ClearLine</h5><span class="tpl-badge ats">ATS</span>
+                    </div>
+                    <div class="template-card" data-id="gold" data-cat="Professional ATS" onclick="setTemplate('gold', this)">
+                        <div class="template-preview" style="background:#fffbeb;"><div style="text-align:left;padding:12px;width:100%;display:flex;gap:8px;align-items:center;"><div style="width:24px;height:24px;border-radius:50%;background:#d97706;flex-shrink:0;"></div><div><div style="height:5px;background:#1a1a1a;border-radius:3px;width:50px;margin-bottom:4px;"></div><div style="height:3px;background:#ddd;border-radius:2px;width:40px;"></div></div></div></div>
+                        <h5>Gold Accent</h5><span class="tpl-badge ats">ATS</span>
+                    </div>
+                    <div class="template-card" data-id="harmonized" data-cat="Professional" onclick="setTemplate('harmonized', this)">
+                        <div class="template-preview" style="background:#faf5ff;"><div style="text-align:center;padding:12px;width:100%;"><div style="height:6px;background:#7c3aed;border-radius:3px;width:50%;margin:0 auto 8px;"></div><div style="height:3px;background:#ddd;border-radius:2px;margin-bottom:4px;width:70%;margin-left:auto;margin-right:auto;"></div><div style="height:3px;background:#ddd;border-radius:2px;width:60%;margin-left:auto;margin-right:auto;"></div></div></div>
+                        <h5>Harmonized</h5>
+                    </div>
+                    <div class="template-card" data-id="modern-profile" data-cat="Modern" onclick="setTemplate('modern-profile', this)">
+                        <div class="template-preview" style="background:#f0fdf4;"><div style="display:flex;height:100%;"><div style="width:35%;background:#f8f9fa;padding:8px;"><div style="height:3px;background:#ddd;border-radius:2px;margin-bottom:3px;"></div><div style="height:3px;background:#ddd;border-radius:2px;width:60%;"></div></div><div style="flex:1;padding:8px;"><div style="height:4px;background:#059669;border-radius:3px;width:60%;margin-bottom:6px;"></div><div style="height:3px;background:#ddd;border-radius:2px;margin-bottom:3px;"></div><div style="height:3px;background:#ddd;border-radius:2px;width:80%;"></div></div></div></div>
+                        <h5>Modern Profile</h5><span class="tpl-badge">Sidebar</span>
+                    </div>
+                    <div class="template-card" data-id="authority" data-cat="Corporate" onclick="setTemplate('authority', this)">
+                        <div class="template-preview" style="background:#1a1a2e;"><div style="text-align:left;padding:12px;width:100%;"><div style="height:6px;background:rgba(255,255,255,0.9);border-radius:3px;width:50%;margin-bottom:8px;"></div><div style="height:3px;background:#dc2626;border-radius:3px;width:40%;margin-bottom:6px;"></div><div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px;width:70%;"></div></div></div>
+                        <h5>Authority</h5>
+                    </div>
+                    <div class="template-card" data-id="balanced" data-cat="Professional" onclick="setTemplate('balanced', this)">
+                        <div class="template-preview" style="background:#f9fafb;"><div style="display:flex;height:100%;"><div style="flex:2;padding:8px;"><div style="height:5px;background:#2563eb;border-radius:3px;width:60%;margin-bottom:6px;"></div><div style="height:3px;background:#ddd;border-radius:2px;margin-bottom:3px;"></div><div style="height:3px;background:#ddd;border-radius:2px;width:80%;"></div></div><div style="flex:1;border-left:1px solid #eee;padding:8px;"><div style="height:3px;background:#ddd;border-radius:2px;margin-bottom:3px;"></div><div style="height:3px;background:#ddd;border-radius:2px;width:60%;"></div></div></div></div>
+                        <h5>Balanced</h5><span class="tpl-badge">2-Column</span>
+                    </div>
+                    <div class="template-card" data-id="statement" data-cat="Creative" onclick="setTemplate('statement', this)">
+                        <div class="template-preview" style="background:#ffffff;"><div style="text-align:left;padding:12px;width:100%;"><div style="height:8px;background:#111;border-radius:3px;width:60%;margin-bottom:6px;"></div><div style="width:24px;height:3px;background:#111;margin-bottom:8px;"></div><div style="height:3px;background:#ddd;border-radius:2px;margin-bottom:4px;border-left:3px solid #111;padding-left:4px;"></div><div style="height:3px;background:#ddd;border-radius:2px;width:80%;border-left:3px solid #111;padding-left:4px;"></div></div></div>
+                        <h5>Statement</h5>
+                    </div>
+                    <div class="template-card" data-id="classic" data-cat="Professional ATS" onclick="setTemplate('classic', this)">
+                        <div class="template-preview" style="background:#fafafa;border:1px solid #e5e7eb;"><div style="text-align:center;padding:12px;width:100%;"><div style="height:6px;background:#111;border-radius:3px;width:50%;margin:0 auto 6px;"></div><div style="height:2px;background:#333;width:80%;margin:0 auto 6px;"></div><div style="height:3px;background:#ddd;border-radius:2px;margin-bottom:3px;width:70%;margin-left:auto;margin-right:auto;"></div><div style="height:3px;background:#ddd;border-radius:2px;width:60%;margin-left:auto;margin-right:auto;"></div></div></div>
+                        <h5>Classic Pro</h5><span class="tpl-badge ats">ATS</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completion Score -->
+            <div id="section-score" class="section-form">
+                <h3 style="margin-bottom: 16px;">Resume Completion Score</h3>
+                <div id="score-result">
+                    <p class="text-muted">Click "Calculate Score" to analyze your resume.</p>
+                    <button class="btn btn-primary mt-2" onclick="calculateScore()">Calculate Score</button>
+                </div>
+            </div>
+
+            <!-- ATS Check -->
+            <div id="section-ats" class="section-form">
+                <h3 style="margin-bottom: 16px;">ATS Readiness Check</h3>
+                <div id="ats-result">
+                    <p class="text-muted">Click "Run ATS Check" to analyze your resume for ATS compatibility.</p>
+                    <button class="btn btn-primary mt-2" onclick="runAtsCheck()">Run ATS Check</button>
+                </div>
+            </div>
+
+            <!-- AI Chatbot -->
+            <div id="section-chatbot" class="section-form">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                    <h3 style="margin:0;">💬 AI Chat Assistant</h3>
+                </div>
+                <p style="font-size:0.85rem;color:var(--gray-500);margin-bottom:12px;">Ask anything about your resume, career advice, or let AI help improve your content.</p>
+                <div id="builderChatMessages" style="height:350px;overflow-y:auto;border:1px solid var(--gray-200);border-radius:var(--radius);padding:16px;margin-bottom:12px;background:var(--gray-50);">
+                    <div style="background:var(--primary);color:#fff;padding:10px 14px;border-radius:12px 12px 12px 0;display:inline-block;max-width:90%;font-size:0.9rem;margin-bottom:8px;">Hi! I'm your AI resume assistant. Ask me anything about improving your resume, writing better bullet points, or career advice.</div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <input type="text" id="builderChatInput" class="form-control" placeholder="Ask about your resume..." style="flex:1;" onkeydown="if(event.key==='Enter')sendBuilderChat()">
+                    <button class="btn btn-primary" onclick="sendBuilderChat()">Send</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Live Preview -->
+        <div class="builder-preview" id="previewArea">
+            <div class="preview-paper" id="resumePreview">
+                <!-- Preview renders here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+const resumeId = /*[[${resume.id}]]*/ 0;
+let primaryColor = /*[[${resume.primaryColor}]]*/ '#2563eb';
+let templateId = /*[[${resume.templateId}]]*/ 'professional';
+let fontFamily = /*[[${resume.fontFamily}]]*/ 'Inter';
+let fontSize = /*[[${resume.fontSize}]]*/ 11;
+/*]]>*/
+</script>
+<script th:src="@{/js/templates.js}"></script>
+<script th:src="@{/js/builder.js}"></script>
+</body>
+</html>
